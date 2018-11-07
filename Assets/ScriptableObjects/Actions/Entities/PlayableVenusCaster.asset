@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8007dd0879eb74e44879c23be224c669, type: 3}
+  m_Name: PlayableVenusCaster
+  m_EditorClassIdentifier: 
+  _attack: {fileID: 11400000, guid: a21b647034bf9f842aaea66391cca443, type: 2}
+  _defend: {fileID: 11400000, guid: 3d0a8935684180840adf792458d5d755, type: 2}
+  _psy: []
+  _djinn: []
+  _item: []
+  _summon: []
+  _name: Carl
+  _psyPoints: 0
+  _healthPoints: 50

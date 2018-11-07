@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1afb632ed7b0d574dabd3b8f5c0f3301, type: 3}
+  m_Name: DebugBattle
+  m_EditorClassIdentifier: 
+  _enemies:
+  - {fileID: 11400000, guid: fb8e3042b06c38f43a71ca26f7d38d70, type: 2}
+  - {fileID: 11400000, guid: a7ef44236ba937f49ad74aaa97aaf8bb, type: 2}
+  - {fileID: 11400000, guid: 4c8ab631d56bb504480a543b23eaa0d5, type: 2}
