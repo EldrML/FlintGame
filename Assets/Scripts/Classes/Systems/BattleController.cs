@@ -116,6 +116,8 @@ public class BattleController : MonoSingleton<BattleController>
 
     public void AddTargetToCurrentAction(EntityData target)
     {
+        if (CurrentState != States.SelectTargets) return;
+
         if (_currentSelectAction == null || _currentSelectAction.Targets.Contains(target)) return;
 
         _currentSelectAction.Targets.Add(target);
