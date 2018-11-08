@@ -31,31 +31,31 @@ public class UIBattleMenu : MonoSingleton<UIBattleMenu>
 
     private void Start()
     {
-        BattleController.Instance.StateChanged += StateChanged;
+        UnityBattleController.Instance.StateChanged += StateChanged;
         HideAllMenus();
     }
 
-    private void StateChanged(BattleController.States oldState, BattleController.States newState)
+    private void StateChanged(UnityBattleController.States oldState, UnityBattleController.States newState)
     {
         switch (newState)
         {
-            case BattleController.States.InitBattle:
+            case UnityBattleController.States.InitBattle:
                 InitEnemies();
                 InitParty();
                 _partyParent.gameObject.SetActive(true);
                 _enemyParent.gameObject.SetActive(true);
                 break;
-            case BattleController.States.MainMenu:
-                if (oldState != BattleController.States.InitBattle) InitEnemies();
+            case UnityBattleController.States.MainMenu:
+                if (oldState != UnityBattleController.States.InitBattle) InitEnemies();
                 ShowMainMenu();
                 break;
-            case BattleController.States.SelectAction:
+            case UnityBattleController.States.SelectAction:
                 ShowActionTypeMenu();
                 break;
-            case BattleController.States.SelectTargets:
+            case UnityBattleController.States.SelectTargets:
                 HideAllMenus();
                 break;
-            case BattleController.States.EndBattle:
+            case UnityBattleController.States.EndBattle:
                 HideAllMenus();
                 _partyParent.gameObject.SetActive(false);
                 _enemyParent.gameObject.SetActive(false);
@@ -68,7 +68,7 @@ public class UIBattleMenu : MonoSingleton<UIBattleMenu>
         for (int i = _enemyParent.childCount - 1; i >= 0; i--)
             Destroy(_enemyParent.GetChild(i).gameObject);
 
-        foreach (var enemy in BattleController.Instance.Enemies)
+        foreach (var enemy in UnityBattleController.Instance.Enemies)
         {
             var obj = Instantiate(_entityButtonPrefab, _enemyParent);
 
@@ -116,7 +116,7 @@ public class UIBattleMenu : MonoSingleton<UIBattleMenu>
         for (int i = _actionMenuButtonParent.childCount - 1; i >= 0; i--)
             Destroy(_actionMenuButtonParent.GetChild(i).gameObject);
 
-        var actions = BattleController.Instance.CurrentCharacterActions((ActionData.ActionType)actionType);
+        var actions = UnityBattleController.Instance.CurrentCharacterActions((ActionData.ActionType)actionType);
 
         foreach (var action in actions)
         {

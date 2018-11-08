@@ -202,3 +202,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 440ae04b9fc58284fa9b223b4c7b3dbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _characters:
+  - {fileID: 11400000, guid: bf735ac91e87642ac9d237992b702d7a, type: 2}
+  - {fileID: 11400000, guid: bf735ac91e87642ac9d237992b702d7a, type: 2}
+  _enemies:
+  - {fileID: 11400000, guid: af32702921497014dae6fe77f2a36a35, type: 2}
+  - {fileID: 11400000, guid: af32702921497014dae6fe77f2a36a35, type: 2}
+  - {fileID: 11400000, guid: af32702921497014dae6fe77f2a36a35, type: 2}
+  - {fileID: 11400000, guid: af32702921497014dae6fe77f2a36a35, type: 2}

@@ -16,7 +16,7 @@ public class UIActionButton : MonoBehaviour
 
     public void ExecuteAction()
     {
-        BattleController.Instance.AddActionForCurrentCharacter(_action);
+        UnityBattleController.Instance.AddActionForCurrentCharacter(_action);
     }
 
 }

@@ -10,13 +10,13 @@ public class BattleInitializer : MonoSingleton<BattleInitializer>
 
     private void Start()
     {
-        BattleController.Instance.StateChanged += StateChanged;
+        UnityBattleController.Instance.StateChanged += StateChanged;
     }
 
-    private void StateChanged(BattleController.States oldState, BattleController.States newState)
+    private void StateChanged(UnityBattleController.States oldState, UnityBattleController.States newState)
     {
-        if (newState != BattleController.States.InitBattle) return;
+        if (newState != UnityBattleController.States.InitBattle) return;
         //This will later handle things like scene transitions and initial camera movement
-        BattleController.Instance.SetState(BattleController.States.MainMenu);
+        UnityBattleController.Instance.SetState(UnityBattleController.States.MainMenu);
     }
 }
