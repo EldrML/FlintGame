@@ -11,6 +11,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ec9ce6fcea6f475fbd97c76b9f9eb4a, type: 3}
   m_Name: ch1
   m_EditorClassIdentifier: 
+  idle: {fileID: 7400000, guid: 72d8815333ac348e6b9d2234da9d8150, type: 2}
+  sprite: {fileID: 21300010, guid: 41efc8ed44eed428191f5b2822f3f69b, type: 3}
   _psy:
   - {fileID: 11400000, guid: f1410637959d74f73b1c94cb77df9625, type: 2}
   _djinn:
@@ -18,6 +20,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 272ce8b1df2cb4824968e130695f0dd5, type: 2}
   _item: []
   _weapon: {fileID: 11400000, guid: a0a8346f50d01ad48ad2f577a64d012f, type: 2}
-  pp: 100
+  pp: 90
   hp: 100
   Name: character

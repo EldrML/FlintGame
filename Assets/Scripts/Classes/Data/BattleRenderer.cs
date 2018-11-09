@@ -5,8 +5,77 @@ using UnityEditor;
 using System.Reflection;
 using System;
 using System.Linq;
+using UnityEngine.UI;
 
-public class BattleRenderer  {
+public class BattleRenderer: MonoBehaviour
+{
+
+    private float rotation = 0;
+    private float center_x = 0;
+    private float center_y = 0;
+
+    public Text TextElement { get; set; }
+    public Image FightMenuImage {get;set; }
+    public Image FleeMenuImage { get; set; }
+    public Image DjinnMenuImage { get; set; }
+    public Image PsyMenuImage { get; set; }
+    public Image SummonMenuImage { get; set; }
+    public Image ItemMenuImage { get; set; }
+    public Image AttackMenuImage { get; set; }
+    public Image DefendMenuImage { get; set; }
+
+    //Note this is just for testing, to be replaced with proper images later
+    private Image ch_Left;
+    private Image ch_Right;
+    private Image ch_Up;
+    private Image ch_Down;
+
+    private void Start()
+    {
+        TextElement = GameObject.Find("BattleTextOutput").GetComponent<Text>();
+        FightMenuImage = GameObject.Find("UIFight").GetComponent<Image>();
+        FleeMenuImage = GameObject.Find("UIFlee").GetComponent<Image>();
+        DjinnMenuImage = GameObject.Find("UIDjinn").GetComponent<Image>();
+        PsyMenuImage = GameObject.Find("UIPsy").GetComponent<Image>();
+        SummonMenuImage = GameObject.Find("UISummon").GetComponent<Image>();
+        ItemMenuImage = GameObject.Find("UIItem").GetComponent<Image>();
+        AttackMenuImage = GameObject.Find("UIAttack").GetComponent<Image>();
+        DefendMenuImage = GameObject.Find("UIDefend").GetComponent<Image>();
+
+        //note: as above, just for testing
+        ch_Left = GameObject.Find("ch_Left").GetComponent<Image>();
+        ch_Right = GameObject.Find("ch_Right").GetComponent<Image>();
+        ch_Up = GameObject.Find("ch_Up").GetComponent<Image>();
+        ch_Down = GameObject.Find("ch_Down").GetComponent<Image>();
+    }
+
+    private void hideAllImages()
+    {
+        //TODO: make this more manageable, either use unity's editor or put into a list
+        FightMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+        FleeMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+        DjinnMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+        PsyMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+        SummonMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+        ItemMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+        AttackMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+        DefendMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+        FightMenuImage.enabled = true;
+        FleeMenuImage.enabled = true;
+        DjinnMenuImage.enabled = false;
+        PsyMenuImage.enabled = false;
+        SummonMenuImage.enabled = false;
+        ItemMenuImage.enabled = false;
+        AttackMenuImage.enabled = false;
+        DefendMenuImage.enabled = false;
+
+
+        ch_Left.enabled = false;
+        ch_Right.enabled = false;
+        ch_Up.enabled = false;
+        ch_Down.enabled = false;
+    }
+
     static MethodInfo _clearConsoleMethod;
     static MethodInfo clearConsoleMethod
     {
@@ -26,63 +95,212 @@ public class BattleRenderer  {
     {
         clearConsoleMethod.Invoke(new object(), null);
     }
+
+
+    public void RotateLeft(){
+        //testing rotation (TODO: remove)
+        rotation += 2;
+        if(rotation>360){
+            rotation -= 360;
+        }
+    }
+    public void RotateRight()
+    {
+        //testing rotation (TODO: remove)
+        rotation -= 2;
+        if (rotation < 0)
+        {
+            rotation += 360;
+        }
+    }
+
+    public void SetCharacterCoordinates (BattleController controller)
+    {
+        //testing rotation
+        //Description of formula:
+        //to get "fake" 3d we give each character an X and a Y coordinate
+        //allies sit along the X axis, enemies along the Y axis
+        //the scene is allowed to rotate around the center of the battle
+        //In a top-down game, this would give two parallel lines rotating around a circle
+        //to get the "fake" 3d effect, we squish the y-axis, so that instead of orbiting in a circle, it orbits in an ellipse
+        //then, to give more depth, scale sprites based on y-axis, so that further sprites are smaller and closer ones bigger
+
+        var characters = controller.GetCharacters();
+        var enemies = controller.GetEnemies();
+
+        //Assign characters their position in the X/Y grid
+        float offset = 0;
+        foreach(var chara in characters)
+        {
+            chara.x = offset;
+            chara.y = -100;//100 px below the center
+            offset += 40; //40 between characters
+        }
+        offset = 0;
+        foreach (var e in enemies)
+        {
+            e.x = offset;
+            e.y = 100;//100 px above the center
+            offset += 40;//40 between enemies
+        }
+
+        //quick and dirty way of setting the sprite, a real implementation would allocate sprites dynamically.
+        var chImg = ch_Up;
+        if(rotation > 0 && rotation <= 90)
+        {
+            chImg = ch_Left;
+        }
+        if (rotation > 90 && rotation <= 180)
+        {
+            chImg = ch_Down;
+        }
+        if (rotation > 180 && rotation <= 270)
+        {
+            chImg = ch_Up;
+        }
+        if (rotation > 270 && rotation <= 360)
+        {
+            chImg = ch_Right;
+        }
+        
+        chImg.enabled = true;
+        var ch = controller.GetCharacters().First();
+        //convert X/Y to be in an orbit, use trig to calcuate the X/Y's for rotation around a point
+        double DEG_TO_RAD = 0.0174533;//trig functions work in radians. Easy way of conversion. PI/180.
+        double angle = rotation * DEG_TO_RAD;
+        double render_x = Math.Cos(angle) * (ch.x-center_x) - Math.Sin(angle) * (ch.y - center_y) + center_x;
+        double render_y = Math.Sin(angle) * (ch.x-center_x) + Math.Cos(angle) * (ch.y - center_y) + center_y;
+        render_y = render_y * 0.2;//squish the y axis to fake depth. this represents an ellipse with width 1 and height 0.2
+
+        //this is for scaling in the z-axis.
+        //above, the y values range between +/-100 so work out as a percentage how far up the image is
+        double yPercent = (render_y + 100) / 200;
+        //reduce the percentage range so that it's between 0-0.25, so images don't get too small
+        yPercent = yPercent / 4;
+        //finally, compute the resulting value as being from 0.75 (far away) to 1 (close)
+        yPercent = 1 - yPercent;
+
+        chImg.transform.position = new Vector3((float)render_x+200, (float)render_y+300, 0);
+        chImg.transform.localScale = new Vector3(chImg.transform.localScale.x, (float)yPercent, chImg.transform.localScale.z);
+    }
+
     public void Render(BattleController controller)
     {
-  
-        Debug.ClearDeveloperConsole();
+        hideAllImages();//by default hide everything and reset scales
+        SetCharacterCoordinates(controller);
+        //the main render loop will enable and scale just the releveant elements
+        TextElement.text = "";
+        //Debug.ClearDeveloperConsole();
         ClearLogConsole();
         if (controller.CurrentState == controller.sDjinnMenu)
         {
-            Debug.Log("State: Djinn Menu");
-            string debugLog = "";
+            string debugLog = "State: Djinn Menu\n";
             int i = 0;
             var djinn = controller.GetCurrentCharacter().GetDjinn();
-            foreach(var item in controller.sDjinnMenu.menuOption)
+            foreach (var item in controller.sDjinnMenu.menuOption)
             {
                 if (i > 0)
                 {
                     debugLog += "\n";
                 }
-                if (i== controller.sDjinnMenu.selectedMenuOption)
+                if (i == controller.sDjinnMenu.selectedMenuOption)
                 {
                     debugLog += "-";
                 }
                 var optDjinn = djinn.Where(x => x.Name == item).FirstOrDefault();
-                if(optDjinn != null)
+                if (optDjinn != null)
                 {
                     debugLog += optDjinn.Element;
-                    debugLog += "(" + optDjinn.State +" "+Convert.ToString(optDjinn.Cooldown) + ")";
+                    debugLog += "(" + optDjinn.State + " " + Convert.ToString(optDjinn.Cooldown) + ")";
                 }
                 debugLog += item;
                 i += 1;
             }
-            Debug.Log(debugLog);
+            TextElement.text += debugLog;
+            //Debug.Log(debugLog);
         }
         if (controller.CurrentState == controller.sFightMenu)
         {
-            Debug.Log("State: Fight Menu");
-            string debugLog = "";
+            string debugLog = "State: Fight Menu\n";
             debugLog += controller.GetCurrentCharacter().Name + ":";
             int i = 0;
+            float itemPos = 0;
             foreach (var item in controller.sFightMenu.menuOption)
             {
                 if (i > 0)
                 {
                     debugLog += ",";
                 }
+                bool isSelected = false;
                 if (i == controller.sFightMenu.selectedMenuOption)
                 {
+                    isSelected = true;
                     debugLog += "-";
+                }
+                if (item == StateFightMenu.MENU_DEFEND)
+                {
+                    if (isSelected)
+                    {
+                        DefendMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
+                    }
+                    DefendMenuImage.enabled = true;
+                    DefendMenuImage.transform.localPosition = new Vector3(itemPos, 0, 0);
+                }
+                if (item == StateFightMenu.MENU_SUMMON)
+                {
+                    if (isSelected)
+                    {
+                        SummonMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
+                    }
+                    SummonMenuImage.enabled = true;
+                    SummonMenuImage.transform.localPosition = new Vector3(itemPos, 0, 0);
+                }
+                if (item == StateFightMenu.MENU_FIGHT)
+                {
+                    if (isSelected)
+                    {
+                        AttackMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
+                    }
+                    AttackMenuImage.enabled = true;
+                    AttackMenuImage.transform.localPosition = new Vector3(itemPos, 0, 0);
+                }
+                if (item == StateFightMenu.MENU_DJINN)
+                {
+                    if (isSelected)
+                    {
+                        DjinnMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
+                    }
+                    DjinnMenuImage.enabled = true;
+                    DjinnMenuImage.transform.localPosition = new Vector3(itemPos, 0, 0);
+                }
+                if (item == StateFightMenu.MENU_ITEM)
+                {
+                    if (isSelected)
+                    {
+                        ItemMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
+                    }
+                    ItemMenuImage.enabled = true;
+                    ItemMenuImage.transform.localPosition = new Vector3(itemPos, 0, 0);
+                }
+                if (item == StateFightMenu.MENU_PSY)
+                {
+                    if (isSelected)
+                    {
+                        PsyMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
+                    }
+                    PsyMenuImage.enabled = true;
+                    PsyMenuImage.transform.localPosition = new Vector3(itemPos, 0, 0);
                 }
                 debugLog += item;
                 i += 1;
+                itemPos += 20;
             }
-            Debug.Log(debugLog);
+            TextElement.text += debugLog;
+            //Debug.Log(debugLog);
         }
         if (controller.CurrentState == controller.sItemMenu)
         {
-            Debug.Log("State: Item Menu");
-            string debugLog = "";
+            string debugLog = "State: Item Menu\n";
             int i = 0;
             foreach (var item in controller.sItemMenu.menuOption)
             {
@@ -97,12 +315,12 @@ public class BattleRenderer  {
                 debugLog += item;
                 i += 1;
             }
-            Debug.Log(debugLog);
+            TextElement.text += debugLog;
+            //Debug.Log(debugLog);
         }
         if (controller.CurrentState == controller.sSummonMenu)
         {
-            Debug.Log("State: Summon Menu");
-            string debugLog = "";
+            string debugLog = "State: Summon Menu\n";
             int i = 0;
             foreach (var item in controller.sSummonMenu.menuOption)
             {
@@ -117,13 +335,23 @@ public class BattleRenderer  {
                 debugLog += item;
                 i += 1;
             }
-            Debug.Log(debugLog);
+            TextElement.text += debugLog;
+            //Debug.Log(debugLog);
         }
         if (controller.CurrentState == controller.sMainMenu)
         {
-            Debug.Log("State: Main Menu");
-            string debugLog = "";
-            if(controller.sMainMenu.selectedMenuOption == StateMainMenu.MENU_OPTION_FIGHT)
+            FightMenuImage.enabled = true;
+            FleeMenuImage.enabled = true;
+            if (controller.sMainMenu.selectedMenuOption == StateMainMenu.MENU_OPTION_FIGHT)
+            {
+                FightMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
+            }
+            if (controller.sMainMenu.selectedMenuOption == StateMainMenu.MENU_OPTION_FLEE)
+            {
+                FleeMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
+            }
+            string debugLog = "State: Main Menu\n";
+            if (controller.sMainMenu.selectedMenuOption == StateMainMenu.MENU_OPTION_FIGHT)
             {
                 debugLog += "-";
             }
@@ -134,12 +362,12 @@ public class BattleRenderer  {
                 debugLog += "-";
             }
             debugLog += StateMainMenu.MENU_OPTION_FLEE;
-            Debug.Log(debugLog);
+            TextElement.text += debugLog;
+            //Debug.Log(debugLog);
         }
         if (controller.CurrentState == controller.sPsyMenu)
         {
-            Debug.Log("State: Psy Menu");
-            string debugLog = "";
+            string debugLog = "State: Psy Menu\n";
             int i = 0;
             foreach (var item in controller.sPsyMenu.menuOption)
             {
@@ -154,12 +382,12 @@ public class BattleRenderer  {
                 debugLog += item;
                 i += 1;
             }
-            Debug.Log(debugLog);
+            TextElement.text += debugLog;
+            //Debug.Log(debugLog);
         }
         if (controller.CurrentState == controller.sSelectTarget)
         {
-            Debug.Log("State: Select Target");
-            string debugLog = "";
+            string debugLog = "State: Select Target\n";
             int i = 0;
             var optSkill = controller.GetCurrentCharacter().ChosenSkill;
             foreach (var item in controller.sSelectTarget.menuOption)
@@ -168,7 +396,7 @@ public class BattleRenderer  {
                 {
                     debugLog += ",";
                 }
-                if (i == controller.sSelectTarget.selectedMenuOption || 
+                if (i == controller.sSelectTarget.selectedMenuOption ||
                     optSkill.Range == RangeType.ALL)
                 {
                     debugLog += "-";
@@ -194,22 +422,24 @@ public class BattleRenderer  {
                 debugLog += item;
                 i += 1;
             }
-            Debug.Log(debugLog);
+            TextElement.text += debugLog;
+            //Debug.Log(debugLog);
         }
         if (controller.CurrentState == controller.sFinaliseCharacter)
         {
             //shouldn't get here (or at most for 1 frame)
             //in multiplayer (not yet impleneted) this can persist for some time, 
             //so a message needs to be shown that we are waiting on the opponent
-            Debug.Log("State: Select Finalise Character");
-            Debug.Log("State: Waiting on enemy input...");
+            TextElement.text += ("State: Select Finalise Character");
+            TextElement.text += ("State: Waiting on enemy input...");
         }
-        if(controller.CurrentState == controller.sRenderBattle)
+        if (controller.CurrentState == controller.sRenderBattle)
         {
             Debug.Log("State:  Render Battle");
             string debugLog = "";
-            var characters= controller.sRenderBattle.RenderTargets;
-            if(characters.Count>0){
+            var characters = controller.sRenderBattle.RenderTargets;
+            if (characters.Count > 0)
+            {
                 var ch = characters.First();
                 if (ch.ChosenSkill != Defend.DEFEND)
                 {
@@ -220,7 +450,8 @@ public class BattleRenderer  {
                     debugLog += ch.Name + " defends.";
                 }
             }
-            Debug.Log(debugLog);
+            TextElement.text += debugLog;
+            //Debug.Log(debugLog);
             controller.sRenderBattle.ProgressFrame(1);
         }
 

@@ -6,7 +6,10 @@ using System;
 
 [CreateAssetMenu(menuName = "Gameplay/Battle/Character")]
 public class Character : ScriptableObject
-{ 
+{
+
+    public float x;
+    public float y;
 
     [SerializeField]
     private List<Psy> _psy = new List<Psy>();

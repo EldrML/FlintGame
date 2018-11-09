@@ -11,6 +11,7 @@ public class Djinn : Skill {
     [System.Serializable]
     public enum DjinnElement { ELEMENT_EARTH, ELEMENT_FIRE, ELEMENT_WATER, ELEMENT_AIR }
 
-    public DjinnState State { get; set; }
+    [SerializeField]
+    public DjinnState State;
     public int Cooldown { get; set; }
 }

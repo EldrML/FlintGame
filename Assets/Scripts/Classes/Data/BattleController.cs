@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-
 //These are temporary classes for setting up a battle
 //TODO: replace it with a real implementation when real data is implemented.
 
@@ -12,6 +11,8 @@ using UnityEngine;
 //Controller implies MVC so may be misleading
 public class BattleController : MonoBehaviour {
 
+    [SerializeField]
+    private Summon[] _summon;
     [SerializeField]
     private Character[] _characters;
     [SerializeField]
@@ -27,7 +28,7 @@ public class BattleController : MonoBehaviour {
 
     private string currentAction = ACTION_NONE;
 
-    private BattleRenderer battleRenderer = new BattleRenderer();
+    private BattleRenderer battleRenderer;
     
     public StateDjinnMenu sDjinnMenu = new StateDjinnMenu();
     public StateFightMenu sFightMenu = new StateFightMenu();
@@ -43,8 +44,10 @@ public class BattleController : MonoBehaviour {
 
     private int selectedCharacter = 0;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start ()
+    {
+        battleRenderer = GameObject.Find("BattleCanvas").GetComponent<BattleRenderer>();
         CurrentState = sMainMenu;
         //each character needs a unique name.
         //if instantiating multiples of the same unit, assign them a suffix
@@ -76,11 +79,22 @@ public class BattleController : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-		//map user input to state actions.
-		//there is a 1-1 mapping between actions and keys.
-		//states themselves should have no knowledge of physical inputs.
-		//note: this assumes keyboard controls only.
-		//e.g. If there's mouse controls states will need to handle these as well.
+        //for testing rotation, todo: remove
+        if(Input.GetKey(KeyCode.Q))
+        {
+            battleRenderer.RotateLeft();
+        }
+        if (Input.GetKey(KeyCode.W))
+        {
+            battleRenderer.RotateRight();
+        }
+
+
+        //map user input to state actions.
+        //there is a 1-1 mapping between actions and keys.
+        //states themselves should have no knowledge of physical inputs.
+        //note: this assumes keyboard controls only.
+        //e.g. If there's mouse controls states will need to handle these as well.
         currentAction = ACTION_NONE;
         if (Input.GetKeyUp(KeyCode.A))
         {
@@ -150,7 +164,6 @@ public class BattleController : MonoBehaviour {
         selectedCharacter = 0;
     }
 
-    private List<Summon> _summon = new List<Summon>();
     public List<Summon> GetCharacterSummons()
     {
         //TODO: summons pull from a global djinn pool, not a per-character pool.

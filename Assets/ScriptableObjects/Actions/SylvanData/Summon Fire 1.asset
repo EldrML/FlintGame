@@ -18,3 +18,4 @@ MonoBehaviour:
   _power: 0
   _name: Summon Fire 1
   _description: 
+  Requirements: 01000000
