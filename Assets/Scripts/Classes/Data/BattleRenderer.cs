@@ -25,6 +25,7 @@ public class BattleRenderer: MonoBehaviour
     public Image DefendMenuImage { get; set; }
 
     //Note this is just for testing, to be replaced with proper images later
+    private Dictionary<string,Dictionary<string,Image>> chImages = new Dictionary<string, Dictionary<string, Image>>();
     private Image ch_Left;
     private Image ch_Right;
     private Image ch_Up;
@@ -74,6 +75,13 @@ public class BattleRenderer: MonoBehaviour
         ch_Right.enabled = false;
         ch_Up.enabled = false;
         ch_Down.enabled = false;
+        foreach(var kvp in chImages)
+        {
+            foreach(var img in kvp.Value)
+            {
+                img.Value.enabled = false;
+            }
+        }
     }
 
     static MethodInfo _clearConsoleMethod;
@@ -127,61 +135,100 @@ public class BattleRenderer: MonoBehaviour
 
         var characters = controller.GetCharacters();
         var enemies = controller.GetEnemies();
-
+        var allcharacters = new List<Character>();
         //Assign characters their position in the X/Y grid
         float offset = 0;
-        foreach(var chara in characters)
+        var parent = GameObject.Find("BattleCanvas").transform;
+        foreach (var chara in characters)
         {
+            if (!chImages.ContainsKey(chara.Name))
+            {
+                var chDict = new Dictionary<string, Image>();
+                
+                var i = Instantiate(ch_Left, parent);
+                chDict.Add("left", i);
+                i = Instantiate(ch_Right, parent);
+                chDict.Add("right", i);
+                i = Instantiate(ch_Up, parent);
+                chDict.Add("up", i);
+                i = Instantiate(ch_Down, parent);
+                chDict.Add("down", i);
+                chImages.Add(chara.Name, chDict);
+            }
             chara.x = offset;
             chara.y = -100;//100 px below the center
             offset += 40; //40 between characters
+            allcharacters.Add(chara);
         }
         offset = 0;
         foreach (var e in enemies)
         {
+            if (!chImages.ContainsKey(e.Name))
+            {
+                var chDict = new Dictionary<string, Image>();
+                var i = Instantiate(ch_Left, parent);
+                chDict.Add("left", i);
+                i = Instantiate(ch_Right, parent);
+                chDict.Add("right", i);
+                i = Instantiate(ch_Up, parent);
+                chDict.Add("up", i);
+                i = Instantiate(ch_Down, parent);
+                chDict.Add("down", i);
+                chImages.Add(e.Name, chDict);
+            }
             e.x = offset;
             e.y = 100;//100 px above the center
             offset += 40;//40 between enemies
+            allcharacters.Add(e);
         }
 
         //quick and dirty way of setting the sprite, a real implementation would allocate sprites dynamically.
-        var chImg = ch_Up;
-        if(rotation > 0 && rotation <= 90)
+        foreach(var ch in allcharacters)
         {
-            chImg = ch_Left;
-        }
-        if (rotation > 90 && rotation <= 180)
-        {
-            chImg = ch_Down;
-        }
-        if (rotation > 180 && rotation <= 270)
-        {
-            chImg = ch_Up;
-        }
-        if (rotation > 270 && rotation <= 360)
-        {
-            chImg = ch_Right;
-        }
-        
-        chImg.enabled = true;
-        var ch = controller.GetCharacters().First();
-        //convert X/Y to be in an orbit, use trig to calcuate the X/Y's for rotation around a point
-        double DEG_TO_RAD = 0.0174533;//trig functions work in radians. Easy way of conversion. PI/180.
-        double angle = rotation * DEG_TO_RAD;
-        double render_x = Math.Cos(angle) * (ch.x-center_x) - Math.Sin(angle) * (ch.y - center_y) + center_x;
-        double render_y = Math.Sin(angle) * (ch.x-center_x) + Math.Cos(angle) * (ch.y - center_y) + center_y;
-        render_y = render_y * 0.2;//squish the y axis to fake depth. this represents an ellipse with width 1 and height 0.2
+            //convert X/Y to be in an orbit, use trig to calcuate the X/Y's for rotation around a point
+            double DEG_TO_RAD = 0.0174533;//trig functions work in radians. Easy way of conversion. PI/180.
+            double RAD_TO_DEG = 57.2958;//other way around
+            double angle = rotation * DEG_TO_RAD;
+            double render_x = Math.Cos(angle) * (ch.x - center_x) - Math.Sin(angle) * (ch.y - center_y) + center_x;
+            double render_y = Math.Sin(angle) * (ch.x - center_x) + Math.Cos(angle) * (ch.y - center_y) + center_y;
 
-        //this is for scaling in the z-axis.
-        //above, the y values range between +/-100 so work out as a percentage how far up the image is
-        double yPercent = (render_y + 100) / 200;
-        //reduce the percentage range so that it's between 0-0.25, so images don't get too small
-        yPercent = yPercent / 4;
-        //finally, compute the resulting value as being from 0.75 (far away) to 1 (close)
-        yPercent = 1 - yPercent;
+            //now need to work out the angle from their renderd point to the middle to set the sprite
+            double angleToMiddleRads = Math.Atan2(render_y - center_y, render_x - center_x);
+            var angleToMiddle = angleToMiddleRads * RAD_TO_DEG;
+            angleToMiddle = (angleToMiddle+360) % 360;
+            angleToMiddle += 90;
+            angleToMiddle = angleToMiddle % 360;
+            var chImg = chImages[ch.Name]["left"];
+            if (angleToMiddle > 0 && angleToMiddle <= 90)
+            {
+                chImg = chImages[ch.Name]["left"];
+            }
+            if (angleToMiddle > 90 && angleToMiddle <= 180)
+            {
+                chImg = chImages[ch.Name]["down"];
+            }
+            if (angleToMiddle > 180 && angleToMiddle <= 270)
+            {
+                chImg = chImages[ch.Name]["up"];
+            }
+            if (angleToMiddle > 270 && angleToMiddle <= 360)
+            {
+                chImg = chImages[ch.Name]["right"];
+            }
 
-        chImg.transform.position = new Vector3((float)render_x+200, (float)render_y+300, 0);
-        chImg.transform.localScale = new Vector3(chImg.transform.localScale.x, (float)yPercent, chImg.transform.localScale.z);
+            //above, the y values range between +/-100 so work out as a percentage how far up the image is
+            double yPercent = (render_y + 100) / 200;
+            render_y = render_y * 0.2;//squish the y axis to fake depth. this represents an ellipse with width 1 and height 0.2
+            chImg.enabled = true;
+            //this is for scaling in the z-axis.
+            //reduce the percentage range so images don't get too small
+            yPercent = yPercent / 3;
+            //finally, compute the resulting value as being from 0.75 (far away) to 1 (close)
+            yPercent = 1 - yPercent;
+            //TODO: set depth = y
+            chImg.transform.position = new Vector3((float)render_x + 200, (float)render_y + 300, 0);
+            chImg.transform.localScale = new Vector3(chImg.transform.localScale.x, (float)yPercent, 1);
+        }
     }
 
     public void Render(BattleController controller)
