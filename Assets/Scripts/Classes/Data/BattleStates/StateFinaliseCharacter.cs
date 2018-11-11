@@ -66,7 +66,7 @@ public class StateFinaliseCharacter : BaseState {
             }
             if (target != null)
             {
-                if (character.ChosenSkill is Weapon)
+                if (character.ChosenSkill is WeaponSkill)
                 {
                     //do basic attack & check for unleash
                     //TODO: for unleashes need to check target in case they hit ally (treat ally tgt as caster)

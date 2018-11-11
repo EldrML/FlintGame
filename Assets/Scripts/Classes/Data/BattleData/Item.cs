@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Gameplay/Battle/Item")]
-public class Item : Skill {
+public class ItemSkill : Skill {
 
     [SerializeField]
     private int _price;

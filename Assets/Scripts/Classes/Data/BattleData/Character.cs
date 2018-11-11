@@ -16,10 +16,10 @@ public class Character : ScriptableObject
     [SerializeField]
     private List<Djinn> _djinn = new List<Djinn>();
     [SerializeField]
-    private List<Item> _item = new List<Item>();
+    private List<ItemSkill> _item = new List<ItemSkill>();
     [SerializeField]
-    private Weapon _weapon;
-    public Weapon Weapon { get { return _weapon; } }
+    private WeaponSkill _weapon;
+    public WeaponSkill Weapon { get { return _weapon; } }
 
     public int pp = 100;
     public int hp = 100;
@@ -35,7 +35,7 @@ public class Character : ScriptableObject
     {
         return _djinn.ToList();
     }
-    public List<Item> GetItems()//Todo:change to item type
+    public List<ItemSkill> GetItems()//Todo:change to item type
     {
         return _item.ToList();
     }

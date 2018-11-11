@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Gameplay/Battle/Weapon")]
-public class Weapon  :Item {
+public class WeaponSkill  :ItemSkill {
 
     [SerializeField]
     private Unleash _unleash;
