@@ -71,6 +71,8 @@ public class CharacterInventory : MonoBehaviour
         return null;
     }
 
+    // Returns the appropriate stack to remove items from
+    // Returns null if there is not any available.
     private ItemStack findRemovableStack(Item item)
     {
         //Returns null if no stack is found.

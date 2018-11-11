@@ -29,4 +29,29 @@ public static class Cardinal
 
         return Direction.South;
     }
+
+    public static Vector2 vectorForDirection(Direction dir)
+    {
+        switch (dir)
+        {
+            case Direction.South:
+                return new Vector2(0, -1).normalized;
+            case Direction.SouthEast:
+                return new Vector2(1, -1).normalized;
+            case Direction.East:
+                return new Vector2(1, 0).normalized;
+            case Direction.NorthEast:
+                return new Vector2(1, 1).normalized;
+            case Direction.North:
+                return new Vector2(0, 1).normalized;
+            case Direction.NorthWest:
+                return new Vector2(-1, 1).normalized;
+            case Direction.West:
+                return new Vector2(-1, 0).normalized;
+            case Direction.SouthWest:
+                return new Vector2(-1, -1).normalized;
+            default:
+                return new Vector2(1, 0).normalized;
+        }
+    }
 }

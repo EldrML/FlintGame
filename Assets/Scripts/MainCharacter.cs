@@ -16,11 +16,14 @@ public class MainCharacter : MonoBehaviour
     private Rigidbody2D _rb;
     private Animator _animator;
 
+    private BoxCollider2D _collider;
+
     void Start()
     {
         _rb = this.GetComponent<Rigidbody2D>();
         _animator = this.GetComponent<Animator>();
         _lookPosition = Cardinal.Direction.South;
+        _collider = this.GetComponent<BoxCollider2D>();
     }
 
     void Update()
@@ -42,11 +45,13 @@ public class MainCharacter : MonoBehaviour
         Vector2 speed = Vector2.ClampMagnitude(new Vector2(x, y), this._walkSpeed);
 
         // Check if player is running
-        bool run = Input.GetAxis("Fire1") > 0.0f;
+        bool run = Input.GetAxis("Cancel/Run") > 0.0f;
         if (run)
         {
             speed = speed * this._runSpeed;
         }
+
+        InteractionControl();
 
         // Animation triggering
         _animator.SetFloat("speedMagnitude", speed.magnitude);
@@ -65,8 +70,32 @@ public class MainCharacter : MonoBehaviour
         _rb.MovePosition(this._rb.position + speed * Time.deltaTime);
     }
 
-    private void SetSpeed()
+    private void InteractionControl()
     {
+        if (Input.GetButtonDown("Accept/Use"))
+        {
+            MakeInteraction();
+        }
+    }
 
+    private void MakeInteraction()
+    {
+        Vector2 center = _collider.bounds.center;
+        Vector2 direction = Cardinal.vectorForDirection(_lookPosition);
+        float size = _collider.size.x;
+
+        // Disables own collider to prevent colliding on itself
+        _collider.enabled = false;
+        RaycastHit2D hit = Physics2D.Raycast(center, direction, size);
+        _collider.enabled = true;
+
+        if (hit.collider != null)
+        {
+            Interactable interactable = hit.transform.GetComponent<Interactable>();
+            if (interactable == null) return;
+
+            interactable.Interact(this.gameObject);
+
+        }
     }
 }
