@@ -12,7 +12,7 @@ public class UIEntity : MonoBehaviour
 
     private void Start()
     {
-        BattleController.Instance.ActingPartyMemberChanged += UpdateText;
+        UnityBattleController.Instance.ActingPartyMemberChanged += UpdateText;
     }
 
     public EntityData Entity { get { return _entity; }
@@ -41,7 +41,7 @@ public class UIEntity : MonoBehaviour
 
     public void SelectAsTarget()
     {
-        BattleController.Instance.AddTargetToCurrentAction(_entity);
+        UnityBattleController.Instance.AddTargetToCurrentAction(_entity);
     }
 
     private void OnDestroy()
@@ -53,7 +53,7 @@ public class UIEntity : MonoBehaviour
     {
         if (!_entity || !_text) return;
         if (_entity.IsActing) _text.text = "[" + _entity.Name + "[" + _entity.HealthPoints + "]]";
-        else if (BattleController.Instance.CurrentActingPartyMember == _entity) _text.text = "-> " + _entity.Name + "[" + _entity.HealthPoints + "] <-";
+        else if (UnityBattleController.Instance.CurrentActingPartyMember == _entity) _text.text = "-> " + _entity.Name + "[" + _entity.HealthPoints + "] <-";
         else _text.text = _entity.Name + "[" + _entity.HealthPoints + "]";
     }
 }

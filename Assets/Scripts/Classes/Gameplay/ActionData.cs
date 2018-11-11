@@ -31,7 +31,7 @@ public abstract class ActionData : ScriptableObject, IHasName, IHasDescription
     {
         instigator.IsActing = true;
 
-        yield return BattleController.Instance.StartCoroutine(ExecuteActionInternal(instigator, targets));
+        yield return UnityBattleController.Instance.StartCoroutine(ExecuteActionInternal(instigator, targets));
 
         instigator.IsActing = false;
     }

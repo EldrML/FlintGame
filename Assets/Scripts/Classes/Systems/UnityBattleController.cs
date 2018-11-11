@@ -4,12 +4,12 @@ using UnityEngine;
 using System;
 using System.Linq;
 
-public class BattleController : MonoSingleton<BattleController>
+public class UnityBattleController : MonoSingleton<UnityBattleController>
 {
 
     public enum States { NoBattle, InitBattle, MainMenu, SelectAction, SelectTargets, EnemyAI, ExecuteActions, FleeBattle, EndBattle }
 
-    protected override BattleController GetSingletonInstance { get { return this; } }
+    protected override UnityBattleController GetSingletonInstance { get { return this; } }
     [SerializeField]
     private SimpleFSM<States> _fsm;
 

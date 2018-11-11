@@ -11,21 +11,21 @@ public class BattleDebugger : MonoBehaviour
 
     private void Start()
     {
-        BattleController.Instance.StateChanged += StateChanged;
+        UnityBattleController.Instance.StateChanged += StateChanged;
         GameController.Instance.GameStarted += () => gameObject.SetActive(true);
         gameObject.SetActive(false);
     }
 
-    private void StateChanged(BattleController.States oldState, BattleController.States newState)
+    private void StateChanged(UnityBattleController.States oldState, UnityBattleController.States newState)
     {
-        if (newState != BattleController.States.EndBattle) return;
+        if (newState != UnityBattleController.States.EndBattle) return;
 
         gameObject.SetActive(true);
     }
 
     public void StartDebugBattle()
     {
-        BattleController.Instance.StartBattle(_settings);
+        UnityBattleController.Instance.StartBattle(_settings);
     }
 
 

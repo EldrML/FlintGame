@@ -6,9 +6,9 @@ public class EnemyController : MonoSingleton<EnemyController>
 {
     protected override EnemyController GetSingletonInstance { get { return this; } }
 
-    private Queue<BattleController.TargetedAction> _enemyActions = new Queue<BattleController.TargetedAction>();
+    private Queue<UnityBattleController.TargetedAction> _enemyActions = new Queue<UnityBattleController.TargetedAction>();
 
-    public Queue<BattleController.TargetedAction> EnemyActions { get { return _enemyActions; } } 
+    public Queue<UnityBattleController.TargetedAction> EnemyActions { get { return _enemyActions; } } 
 
     public void HandleEnemies(IEnumerable<EntityData> enemies)
     {
@@ -17,13 +17,13 @@ public class EnemyController : MonoSingleton<EnemyController>
         //Add enemy actions here
         foreach (var enemy in enemies)
         {
-            var action = new BattleController.TargetedAction();
+            var action = new UnityBattleController.TargetedAction();
             action.Instigator = enemy;
             action.Action = enemy.Attack;
             action.Targets.Add(PartyController.Instance.PartyMembers[Random.Range(0, PartyController.Instance.PartyMembers.Count)]);
             _enemyActions.Enqueue(action);
         }
 
-        BattleController.Instance.SetState(BattleController.States.ExecuteActions);
+        UnityBattleController.Instance.SetState(UnityBattleController.States.ExecuteActions);
     }
 }
