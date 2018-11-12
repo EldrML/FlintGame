@@ -53,16 +53,21 @@ public class MainCharacter : MonoBehaviour
 
         InteractionControl();
 
-        // Animation triggering
-        _animator.SetFloat("speedMagnitude", speed.magnitude);
-        if (speed.magnitude > 0)
+        // This if here seems redundant but helps to ensure no animation is being
+        // applied when this.Disable() is called.
+        if (this.enabled)
         {
-            if (_lookPosition != Cardinal.CalculateFacingPositionForSpeed(speed))
+            // Animation triggering
+            _animator.SetFloat("speedMagnitude", speed.magnitude);
+            if (speed.magnitude > 0)
             {
-                _lookPosition = Cardinal.CalculateFacingPositionForSpeed(speed);
-                // There was a cardinal point location. Change animation
-                this._animator.SetInteger("lookPosition", (int)_lookPosition);
-                this._animator.SetTrigger("changeCardinal");
+                if (_lookPosition != Cardinal.CalculateFacingPositionForSpeed(speed))
+                {
+                    _lookPosition = Cardinal.CalculateFacingPositionForSpeed(speed);
+                    // There was a cardinal point location. Change animation
+                    this._animator.SetInteger("lookPosition", (int)_lookPosition);
+                    this._animator.SetTrigger("changeCardinal");
+                }
             }
         }
 
@@ -97,5 +102,19 @@ public class MainCharacter : MonoBehaviour
             interactable.Interact(this.gameObject);
 
         }
+    }
+
+    public void Disable()
+    {
+        this.enabled = false;
+
+        // Force idle animation
+        _animator.SetFloat("speedMagnitude", 0);
+        this._animator.SetTrigger("changeCardinal");
+    }
+
+    public void Enable()
+    {
+        this.enabled = true;
     }
 }

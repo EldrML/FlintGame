@@ -11,24 +11,28 @@ public class DepthSort : MonoBehaviour
     [SerializeField]
     private bool _dynamic = false;
 
+    [SerializeField]
+    private Transform _anchor = null;
+
     public bool Dynamic { get { return _dynamic; } set { _dynamic = value; } }
-    
+
     // Use this for initialization
     void Start()
     {
         _sortingGroup = GetComponent<SortingGroup>();
-        _sortingGroup.sortingOrder = GetSortingForTransform(transform);
+        _anchor = _anchor == null ? transform : _anchor;
+        _sortingGroup.sortingOrder = GetSortingForTransform(_anchor);
         enabled = Dynamic;
     }
 
     // Update is called once per frame
     void Update()
     {
-        _sortingGroup.sortingOrder = GetSortingForTransform(transform);
+        _sortingGroup.sortingOrder = GetSortingForTransform(_anchor);
     }
 
-    public static int GetSortingForTransform(Transform transform)
+    public static int GetSortingForTransform(Transform anchor)
     {
-        return short.MaxValue - Mathf.RoundToInt(transform.position.y * 20f);
+        return short.MaxValue - Mathf.RoundToInt(anchor.position.y * 20f);
     }
 }

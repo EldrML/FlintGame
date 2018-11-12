@@ -11,7 +11,7 @@ public class ObjectContainerInteractable : Interactable
         base.Interact(actor);
         if (objectToGet != null)
         {
-            Debug.Log(actor.name + " receives a " + objectToGet.objectName);
+            UIDialogController.Instance.StartDialog(actor, actor.name + " received: " + objectToGet.objectName);
             actor.GetComponent<CharacterInventory>().addItem(objectToGet, 1);
             objectToGet = null;
         }
