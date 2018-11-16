@@ -11,9 +11,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ec9ce6fcea6f475fbd97c76b9f9eb4a, type: 3}
   m_Name: Enemy1
   m_EditorClassIdentifier: 
+  AnimIdle: {fileID: 7400000, guid: b72076b500cbf4d4bac1d7e5c43b0e40, type: 2}
+  AnimIdleReverse: {fileID: 7400000, guid: b8fcad9b463614ea9a21fab9f11af2c5, type: 2}
+  AnimAttack: {fileID: 7400000, guid: 67fae8b8cc8224764a8a08fe0696c215, type: 2}
+  AnimAttackReverse: {fileID: 7400000, guid: 51e38f09ce0f64397b516da715874433, type: 2}
+  AnimHit: {fileID: 7400000, guid: 89f060cba0875408bbc1a07364f1b1fe, type: 2}
+  AnimHitReverse: {fileID: 7400000, guid: 522ee1471c9f040cdb5e7f761a66ddca, type: 2}
+  AnimSummon: {fileID: 7400000, guid: 370d891d1a1f24e62b7c7af00b247105, type: 2}
+  AnimSummonReverse: {fileID: 7400000, guid: 8483396ad32b949b594a4bba20beb714, type: 2}
+  x: 0
+  y: 0
   _psy: []
   _djinn: []
   _item: []
+  _weapon: {fileID: 11400000, guid: e61a07682ca94406cb91578aae203e2b, type: 2}
   pp: 100
   hp: 100
   Name: enemy

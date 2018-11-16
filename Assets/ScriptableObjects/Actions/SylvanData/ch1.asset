@@ -11,15 +11,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ec9ce6fcea6f475fbd97c76b9f9eb4a, type: 3}
   m_Name: ch1
   m_EditorClassIdentifier: 
-  idle: {fileID: 7400000, guid: 72d8815333ac348e6b9d2234da9d8150, type: 2}
-  sprite: {fileID: 21300010, guid: 41efc8ed44eed428191f5b2822f3f69b, type: 3}
+  AnimIdle: {fileID: 7400000, guid: 1b77158faee7c7c449db07fec3dfac0b, type: 2}
+  AnimIdleReverse: {fileID: 7400000, guid: b9f8feaf7f8327a4980959744a3a61f4, type: 2}
+  AnimAttack: {fileID: 7400000, guid: c80cc9d662cde054c94fbde73949bd4d, type: 2}
+  AnimAttackReverse: {fileID: 7400000, guid: a8a85fadba9264cebbd54ea7bf68c652, type: 2}
+  AnimHit: {fileID: 7400000, guid: b7ecf3549d808414ca56e99dd0d92e75, type: 2}
+  AnimHitReverse: {fileID: 7400000, guid: 27794ca04c22845a58e582ab428e5d65, type: 2}
+  AnimSummon: {fileID: 7400000, guid: f3934912a254cac42a7f52cf57b16ebf, type: 2}
+  AnimSummonReverse: {fileID: 7400000, guid: 21f92f21cf306274daecd2a2c9dfb600, type: 2}
+  x: 0
+  y: 0
   _psy:
   - {fileID: 11400000, guid: f1410637959d74f73b1c94cb77df9625, type: 2}
   _djinn:
   - {fileID: 11400000, guid: a000de44d2638437783a1f975fec5d14, type: 2}
   - {fileID: 11400000, guid: 272ce8b1df2cb4824968e130695f0dd5, type: 2}
   _item: []
-  _weapon: {fileID: 11400000, guid: a0a8346f50d01ad48ad2f577a64d012f, type: 2}
+  _weapon: {fileID: 11400000, guid: e61a07682ca94406cb91578aae203e2b, type: 2}
   pp: 90
   hp: 100
   Name: character

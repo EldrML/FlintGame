@@ -18,4 +18,5 @@ MonoBehaviour:
   _power: 0
   _name: Summon earth 1
   _description: 
+  _animation: 6
   Requirements: 00000000
