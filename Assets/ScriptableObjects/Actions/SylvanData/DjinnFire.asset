@@ -18,3 +18,5 @@ MonoBehaviour:
   _power: 0
   _name: DjinnFire
   _description: 
+  _animation: 6
+  State: 0

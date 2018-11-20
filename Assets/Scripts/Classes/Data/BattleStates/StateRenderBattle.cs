@@ -16,7 +16,7 @@ public class StateRenderBattle : BaseState
         _renderFrames[0] = frameCount;
     }
     //TODO: implement any metadata for animations here
-    private List<int> _renderFrames = new List<int>();
+    public List<int> _renderFrames = new List<int>();
     private bool WaitingForAction = true;
 
     public bool IsCurrentAnimationComplete()
@@ -38,7 +38,7 @@ public class StateRenderBattle : BaseState
         WaitingForAction = true;
         RenderTargets = characters;
         foreach(var ch in characters){
-            _renderFrames.Add(ch.Name.Length*10);//TODO: replace with real frame data
+            _renderFrames.Add(50);//TODO: replace with real frame data
         }
     }
 

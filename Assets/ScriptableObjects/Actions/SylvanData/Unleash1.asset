@@ -18,3 +18,4 @@ MonoBehaviour:
   _power: 1
   _name: unleash_heal
   _description: 
+  _animation: 2

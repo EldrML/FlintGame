@@ -56,6 +56,7 @@ public class BattleController : MonoBehaviour {
         foreach (var charachter in _characters)
         {
             var ch = Instantiate(charachter);
+
             if (tempCharacters.Where(x => x.Name == ch.Name).Count() > 0)
             {
                 //TODO: replace "startWith" will a proper check, e.g. trim suffix numbers and do equality check

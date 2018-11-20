@@ -7,6 +7,14 @@ using System;
 [CreateAssetMenu(menuName = "Gameplay/Battle/Character")]
 public class Character : ScriptableObject
 {
+    public AnimationClip AnimIdle;
+    public AnimationClip AnimIdleReverse;
+    public AnimationClip AnimAttack;
+    public AnimationClip AnimAttackReverse;
+    public AnimationClip AnimHit;
+    public AnimationClip AnimHitReverse;
+    public AnimationClip AnimSummon;
+    public AnimationClip AnimSummonReverse;
 
     public float x;
     public float y;

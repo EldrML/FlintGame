@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using UnityEngine.UI;
 
-public class BattleRenderer: MonoBehaviour
+public class BattleRenderer : MonoBehaviour
 {
 
     private float rotation = 0;
@@ -15,7 +15,7 @@ public class BattleRenderer: MonoBehaviour
     private float center_y = 0;
 
     public Text TextElement { get; set; }
-    public Image FightMenuImage {get;set; }
+    public Image FightMenuImage { get; set; }
     public Image FleeMenuImage { get; set; }
     public Image DjinnMenuImage { get; set; }
     public Image PsyMenuImage { get; set; }
@@ -25,11 +25,26 @@ public class BattleRenderer: MonoBehaviour
     public Image DefendMenuImage { get; set; }
 
     //Note this is just for testing, to be replaced with proper images later
-    private Dictionary<string,Dictionary<string,Image>> chImages = new Dictionary<string, Dictionary<string, Image>>();
-    private Image ch_Left;
-    private Image ch_Right;
-    private Image ch_Up;
-    private Image ch_Down;
+    private Dictionary<string, GameObject> chImages = new Dictionary<string, GameObject>();
+
+    [System.Serializable]
+    public enum ANIMATION_STATE
+    {
+        A_IDLE = 0,
+        A_IDLE_REVERSE = 1,
+        A_ATTACK = 2,
+        A_ATTACK_REVERSE = 3,
+        A_HIT = 4,
+        A_HIT_REVERSE = 5,
+        A_SUMMON = 6,
+        A_SUMMON_REVERSE = 7
+    }
+
+    private float orbitHeight = 3f;
+    private float characterXOffset = 1f;
+    private float spriteScaleFactor = 2f;
+
+    private GameObject sprite;
 
     private void Start()
     {
@@ -43,16 +58,14 @@ public class BattleRenderer: MonoBehaviour
         AttackMenuImage = GameObject.Find("UIAttack").GetComponent<Image>();
         DefendMenuImage = GameObject.Find("UIDefend").GetComponent<Image>();
 
-        //note: as above, just for testing
-        ch_Left = GameObject.Find("ch_Left").GetComponent<Image>();
-        ch_Right = GameObject.Find("ch_Right").GetComponent<Image>();
-        ch_Up = GameObject.Find("ch_Up").GetComponent<Image>();
-        ch_Down = GameObject.Find("ch_Down").GetComponent<Image>();
+        sprite = GameObject.Find("CharacterSprite");
+        sprite.SetActive(false);
     }
 
-    private void hideAllImages()
+    private void HideAllImages()
     {
-        //TODO: make this more manageable, either use unity's editor or put into a list
+        //reset the scale of all elements and hide them
+        //the update loop can then just set the relevant ones without worring about existing elements
         FightMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
         FleeMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
         DjinnMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
@@ -61,47 +74,14 @@ public class BattleRenderer: MonoBehaviour
         ItemMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
         AttackMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
         DefendMenuImage.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-        FightMenuImage.enabled = true;
-        FleeMenuImage.enabled = true;
+        FightMenuImage.enabled = false;
+        FleeMenuImage.enabled = false;
         DjinnMenuImage.enabled = false;
         PsyMenuImage.enabled = false;
         SummonMenuImage.enabled = false;
         ItemMenuImage.enabled = false;
         AttackMenuImage.enabled = false;
         DefendMenuImage.enabled = false;
-
-
-        ch_Left.enabled = false;
-        ch_Right.enabled = false;
-        ch_Up.enabled = false;
-        ch_Down.enabled = false;
-        foreach(var kvp in chImages)
-        {
-            foreach(var img in kvp.Value)
-            {
-                img.Value.enabled = false;
-            }
-        }
-    }
-
-    static MethodInfo _clearConsoleMethod;
-    static MethodInfo clearConsoleMethod
-    {
-        get
-        {
-            if (_clearConsoleMethod == null)
-            {
-                Assembly assembly = Assembly.GetAssembly(typeof(SceneView));
-                Type logEntries = assembly.GetType("UnityEditor.LogEntries");
-                _clearConsoleMethod = logEntries.GetMethod("Clear");
-            }
-            return _clearConsoleMethod;
-        }
-    }
-
-    public static void ClearLogConsole()
-    {
-        clearConsoleMethod.Invoke(new object(), null);
     }
 
 
@@ -122,7 +102,57 @@ public class BattleRenderer: MonoBehaviour
         }
     }
 
-    public void SetCharacterCoordinates (BattleController controller)
+    //Given a character, instantiates the rendering sprite 
+    //also sets the animation to be the one defined on the character's data
+    private GameObject GetCharacterAnimationSprite(Character chara, Transform parent)
+    {
+        var chSprite = Instantiate(sprite, parent);
+        var animator = chSprite.GetComponent<Animator>();
+        AnimatorOverrideController aoc = new AnimatorOverrideController(animator.runtimeAnimatorController);
+        var anims = new List<KeyValuePair<AnimationClip, AnimationClip>>();
+
+        foreach (var a in aoc.animationClips)
+        {
+            //TODO: how to handle missing animations?
+            if (a.name == "BattleAttack" && chara.AnimAttack!=null)
+            {
+                anims.Add(new KeyValuePair<AnimationClip, AnimationClip>(a, chara.AnimAttack));
+            }
+            if (a.name == "BattleAttackReverse" && chara.AnimAttackReverse != null)
+            {
+                anims.Add(new KeyValuePair<AnimationClip, AnimationClip>(a, chara.AnimAttackReverse));
+            }
+            if (a.name == "BattleHit" && chara.AnimHit != null)
+            {
+                anims.Add(new KeyValuePair<AnimationClip, AnimationClip>(a, chara.AnimHit));
+            }
+            if (a.name == "BattleHitReverse" && chara.AnimHitReverse != null)
+            {
+                anims.Add(new KeyValuePair<AnimationClip, AnimationClip>(a, chara.AnimHitReverse));
+            }
+            if (a.name == "BattleIdle" && chara.AnimIdle != null)
+            {
+                anims.Add(new KeyValuePair<AnimationClip, AnimationClip>(a, chara.AnimIdle));
+            }
+            if (a.name == "BattleIdleReverse" && chara.AnimIdleReverse != null)
+            {
+                anims.Add(new KeyValuePair<AnimationClip, AnimationClip>(a, chara.AnimIdleReverse));
+            }
+            if (a.name == "BattleSummon" && chara.AnimSummon != null)
+            {
+                anims.Add(new KeyValuePair<AnimationClip, AnimationClip>(a, chara.AnimSummon));
+            }
+            if (a.name == "BattleSummonReverse" && chara.AnimSummonReverse != null)
+            {
+                anims.Add(new KeyValuePair<AnimationClip, AnimationClip>(a, chara.AnimSummonReverse));
+            }
+        }
+        aoc.ApplyOverrides(anims);
+        animator.runtimeAnimatorController = aoc;
+        return chSprite;
+    }
+
+    private void SetCharacterCoordinates (BattleController controller)
     {
         //testing rotation
         //Description of formula:
@@ -143,21 +173,13 @@ public class BattleRenderer: MonoBehaviour
         {
             if (!chImages.ContainsKey(chara.Name))
             {
-                var chDict = new Dictionary<string, Image>();
-                
-                var i = Instantiate(ch_Left, parent);
-                chDict.Add("left", i);
-                i = Instantiate(ch_Right, parent);
-                chDict.Add("right", i);
-                i = Instantiate(ch_Up, parent);
-                chDict.Add("up", i);
-                i = Instantiate(ch_Down, parent);
-                chDict.Add("down", i);
-                chImages.Add(chara.Name, chDict);
+                var chSprite = GetCharacterAnimationSprite(chara, parent);
+                chImages.Add(chara.Name, chSprite);
+                chSprite.SetActive(true);
             }
             chara.x = offset;
-            chara.y = -100;//100 px below the center
-            offset += 40; //40 between characters
+            chara.y = -orbitHeight;//abount below the center
+            offset += characterXOffset; //amount between characters
             allcharacters.Add(chara);
         }
         offset = 0;
@@ -165,20 +187,13 @@ public class BattleRenderer: MonoBehaviour
         {
             if (!chImages.ContainsKey(e.Name))
             {
-                var chDict = new Dictionary<string, Image>();
-                var i = Instantiate(ch_Left, parent);
-                chDict.Add("left", i);
-                i = Instantiate(ch_Right, parent);
-                chDict.Add("right", i);
-                i = Instantiate(ch_Up, parent);
-                chDict.Add("up", i);
-                i = Instantiate(ch_Down, parent);
-                chDict.Add("down", i);
-                chImages.Add(e.Name, chDict);
+                var chSprite = GetCharacterAnimationSprite(e, parent);
+                chImages.Add(e.Name, chSprite);
+                chSprite.SetActive(true);
             }
             e.x = offset;
-            e.y = 100;//100 px above the center
-            offset += 40;//40 between enemies
+            e.y = orbitHeight;//amount above the center
+            offset += characterXOffset;//amount between enemies
             allcharacters.Add(e);
         }
 
@@ -189,8 +204,50 @@ public class BattleRenderer: MonoBehaviour
             double DEG_TO_RAD = 0.0174533;//trig functions work in radians. Easy way of conversion. PI/180.
             double RAD_TO_DEG = 57.2958;//other way around
             double angle = rotation * DEG_TO_RAD;
-            double render_x = Math.Cos(angle) * (ch.x - center_x) - Math.Sin(angle) * (ch.y - center_y) + center_x;
-            double render_y = Math.Sin(angle) * (ch.x - center_x) + Math.Cos(angle) * (ch.y - center_y) + center_y;
+
+            int actionState = (int)ANIMATION_STATE.A_IDLE;
+            int actionStateReverse = (int)ANIMATION_STATE.A_IDLE_REVERSE;
+            var xCoord = ch.x;
+            var yCoord = ch.y;
+            //Apply lerp movement if attacking
+            //TODO: modularise this 
+            if (controller.CurrentState == controller.sRenderBattle)
+            {
+                //TODO: summon, hit, etc
+                var renderTarget = controller.sRenderBattle.RenderTargets.FirstOrDefault();
+                if (ch == renderTarget)
+                {
+                    var skill = renderTarget.ChosenSkill;
+                    //if the skill moves the character
+                    if(skill.Animation == ANIMATION_STATE.A_ATTACK||
+                       skill.Animation == ANIMATION_STATE.A_ATTACK_REVERSE)
+                    {
+                        var targetName = renderTarget.ChosenTarget;
+                        //can't show attack animations for allies 
+                        if (skill.Target == TargetType.ENEMY)
+                        {
+                            var enemy = controller.GetEnemies().Where(x => x.Name == targetName).FirstOrDefault();
+                            var frame = controller.sRenderBattle._renderFrames[0];
+                            if (enemy != null )//TODO: frame rate is hard-coded. need to change.
+                            {
+                                if (frame < 50.0f)
+                                {
+                                    var lerpOrigin = new Vector3(ch.x, ch.y, 0);
+                                    var lerpDestination = new Vector3(enemy.x, enemy.y, 0);
+                                    var lerp = Vector3.Lerp(lerpDestination, lerpOrigin, ((float)frame) / 50.0f);
+                                    xCoord = lerp.x;
+                                    yCoord = lerp.y;
+                                    actionState = (int)ANIMATION_STATE.A_ATTACK;
+                                    actionStateReverse = (int)ANIMATION_STATE.A_ATTACK_REVERSE;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            double render_x = Math.Cos(angle) * (xCoord - center_x) - Math.Sin(angle) * (yCoord - center_y) + center_x;
+            double render_y = Math.Sin(angle) * (xCoord - center_x) + Math.Cos(angle) * (yCoord - center_y) + center_y;
 
             //now need to work out the angle from their renderd point to the middle to set the sprite
             double angleToMiddleRads = Math.Atan2(render_y - center_y, render_x - center_x);
@@ -198,47 +255,48 @@ public class BattleRenderer: MonoBehaviour
             angleToMiddle = (angleToMiddle+360) % 360;
             angleToMiddle += 90;
             angleToMiddle = angleToMiddle % 360;
-            var chImg = chImages[ch.Name]["left"];
+            var chImg = chImages[ch.Name];
+            var anim = chImg.GetComponent<Animator>();
+            anim.SetInteger("State", actionState);
+            float horizontalScale = 1.0f;
             if (angleToMiddle > 0 && angleToMiddle <= 90)
             {
-                chImg = chImages[ch.Name]["left"];
+                anim.SetInteger("State", actionState);
             }
             if (angleToMiddle > 90 && angleToMiddle <= 180)
             {
-                chImg = chImages[ch.Name]["down"];
+                anim.SetInteger("State", actionStateReverse);
             }
             if (angleToMiddle > 180 && angleToMiddle <= 270)
             {
-                chImg = chImages[ch.Name]["up"];
+                anim.SetInteger("State", actionStateReverse);
+                horizontalScale = -1.0f;
             }
             if (angleToMiddle > 270 && angleToMiddle <= 360)
             {
-                chImg = chImages[ch.Name]["right"];
+                anim.SetInteger("State", actionState);
+                horizontalScale = -1.0f;
             }
-
-            //above, the y values range between +/-100 so work out as a percentage how far up the image is
-            double yPercent = (render_y + 100) / 200;
+            //above, the y values range between +/-orbitHeight so work out as a percentage how far up the image is
+            double yPercent = (render_y + orbitHeight) / (orbitHeight*2);
             render_y = render_y * 0.2;//squish the y axis to fake depth. this represents an ellipse with width 1 and height 0.2
-            chImg.enabled = true;
             //this is for scaling in the z-axis.
             //reduce the percentage range so images don't get too small
             yPercent = yPercent / 3;
             //finally, compute the resulting value as being from 0.75 (far away) to 1 (close)
             yPercent = 1 - yPercent;
-            //TODO: set depth = y
-            chImg.transform.position = new Vector3((float)render_x + 200, (float)render_y + 300, 0);
-            chImg.transform.localScale = new Vector3(chImg.transform.localScale.x, (float)yPercent, 1);
+            //depth = y to make more distant objects render behind closer ones
+            chImg.transform.position = new Vector3((float)render_x , (float)render_y , (float)render_y);
+            chImg.transform.localScale = new Vector3(horizontalScale* (float)yPercent * spriteScaleFactor, (float)yPercent* spriteScaleFactor, 1);
         }
     }
 
     public void Render(BattleController controller)
     {
-        hideAllImages();//by default hide everything and reset scales
+        HideAllImages();//by default hide everything and reset scales
         SetCharacterCoordinates(controller);
         //the main render loop will enable and scale just the releveant elements
         TextElement.text = "";
-        //Debug.ClearDeveloperConsole();
-        ClearLogConsole();
         if (controller.CurrentState == controller.sDjinnMenu)
         {
             string debugLog = "State: Djinn Menu\n";
@@ -291,7 +349,7 @@ public class BattleRenderer: MonoBehaviour
                         DefendMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
                     }
                     DefendMenuImage.enabled = true;
-                    DefendMenuImage.transform.localPosition = new Vector3(itemPos, 0, 0);
+                    DefendMenuImage.transform.localPosition = new Vector3(itemPos, DefendMenuImage.transform.localPosition.y, 0);
                 }
                 if (item == StateFightMenu.MENU_SUMMON)
                 {
@@ -300,7 +358,7 @@ public class BattleRenderer: MonoBehaviour
                         SummonMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
                     }
                     SummonMenuImage.enabled = true;
-                    SummonMenuImage.transform.localPosition = new Vector3(itemPos, 0, 0);
+                    SummonMenuImage.transform.localPosition = new Vector3(itemPos, SummonMenuImage.transform.localPosition.y, 0);
                 }
                 if (item == StateFightMenu.MENU_FIGHT)
                 {
@@ -309,7 +367,7 @@ public class BattleRenderer: MonoBehaviour
                         AttackMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
                     }
                     AttackMenuImage.enabled = true;
-                    AttackMenuImage.transform.localPosition = new Vector3(itemPos, 0, 0);
+                    AttackMenuImage.transform.localPosition = new Vector3(itemPos, AttackMenuImage.transform.localPosition.y, 0);
                 }
                 if (item == StateFightMenu.MENU_DJINN)
                 {
@@ -318,7 +376,7 @@ public class BattleRenderer: MonoBehaviour
                         DjinnMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
                     }
                     DjinnMenuImage.enabled = true;
-                    DjinnMenuImage.transform.localPosition = new Vector3(itemPos, 0, 0);
+                    DjinnMenuImage.transform.localPosition = new Vector3(itemPos, DjinnMenuImage.transform.localPosition.y, 0);
                 }
                 if (item == StateFightMenu.MENU_ITEM)
                 {
@@ -327,7 +385,7 @@ public class BattleRenderer: MonoBehaviour
                         ItemMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
                     }
                     ItemMenuImage.enabled = true;
-                    ItemMenuImage.transform.localPosition = new Vector3(itemPos, 0, 0);
+                    ItemMenuImage.transform.localPosition = new Vector3(itemPos, ItemMenuImage.transform.localPosition.y, 0);
                 }
                 if (item == StateFightMenu.MENU_PSY)
                 {
@@ -336,7 +394,7 @@ public class BattleRenderer: MonoBehaviour
                         PsyMenuImage.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
                     }
                     PsyMenuImage.enabled = true;
-                    PsyMenuImage.transform.localPosition = new Vector3(itemPos, 0, 0);
+                    PsyMenuImage.transform.localPosition = new Vector3(itemPos, PsyMenuImage.transform.localPosition.y, 0);
                 }
                 debugLog += item;
                 i += 1;
@@ -482,7 +540,7 @@ public class BattleRenderer: MonoBehaviour
         }
         if (controller.CurrentState == controller.sRenderBattle)
         {
-            Debug.Log("State:  Render Battle");
+            //Debug.Log("State:  Render Battle");
             string debugLog = "";
             var characters = controller.sRenderBattle.RenderTargets;
             if (characters.Count > 0)

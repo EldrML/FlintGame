@@ -18,3 +18,5 @@ MonoBehaviour:
   _power: 0
   _name: DjinnEarth
   _description: 
+  _animation: 2
+  State: 0

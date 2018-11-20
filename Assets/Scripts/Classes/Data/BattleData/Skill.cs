@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class Skill:ScriptableObject
+public class Skill : ScriptableObject
 {
     [SerializeField]
     private Djinn.DjinnElement _element;
@@ -26,4 +26,8 @@ public class Skill:ScriptableObject
     [SerializeField]
     private string _description;
     public string Description { get { return _description; } }
+
+    [SerializeField]
+    private BattleRenderer.ANIMATION_STATE _animation;
+    public BattleRenderer.ANIMATION_STATE Animation { get { return _animation; } }
 }
