@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MainCharacter : MonoBehaviour
+public class MainCharacterController : MonoSingleton<MainCharacterController>
 {
+
+    protected override MainCharacterController GetSingletonInstance { get { return this; } }
 
     [SerializeField]
     private float _joystickDeadZone = 0.05f;
@@ -51,6 +53,7 @@ public class MainCharacter : MonoBehaviour
             speed = speed * this._runSpeed;
         }
 
+        // Decides if interact or open menu
         InteractionControl();
 
         // This if here seems redundant but helps to ensure no animation is being
@@ -79,12 +82,17 @@ public class MainCharacter : MonoBehaviour
     {
         if (Input.GetButtonDown("Accept/Use"))
         {
-            MakeInteraction();
+            bool interactionSuccessful = MakeInteraction();
+            if (!interactionSuccessful)
+            {
+                UIMainMenu.Instance.Spawn();
+            }
         }
     }
 
-    private void MakeInteraction()
+    private bool MakeInteraction()
     {
+        // Returns true if interacted, false if not an interactable
         Vector2 center = _collider.bounds.center;
         Vector2 direction = Cardinal.vectorForDirection(_lookPosition);
         float size = _collider.size.x;
@@ -97,11 +105,19 @@ public class MainCharacter : MonoBehaviour
         if (hit.collider != null)
         {
             Interactable interactable = hit.transform.GetComponent<Interactable>();
-            if (interactable == null) return;
-
-            interactable.Interact(this.gameObject);
-
+            if (interactable == null)
+            {
+                // Can't interact with this.
+                return false;
+            }
+            else
+            {
+                // Interaction successful.
+                interactable.Interact(this.gameObject);
+                return true;
+            };
         }
+        return false;
     }
 
     public void Disable()

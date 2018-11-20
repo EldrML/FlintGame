@@ -14,7 +14,7 @@ MonoBehaviour:
   objectName: Herb
   description: Replenishes 50 HP
   sprite: {fileID: 0}
-  limit: 99
+  limit: 40
   buyValue: 10
   sellValue: 7
   canItBeSold: 1

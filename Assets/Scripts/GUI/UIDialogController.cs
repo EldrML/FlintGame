@@ -9,7 +9,6 @@ public class UIDialogController : MonoSingleton<UIDialogController>
     protected override UIDialogController GetSingletonInstance { get { return this; } }
     private Text _dialogText;
     private GameObject _panel;
-    private GameObject _actor;
 
     protected override void Awake()
     {
@@ -27,13 +26,12 @@ public class UIDialogController : MonoSingleton<UIDialogController>
         }
     }
 
-    public void StartDialog(GameObject actor, string text)
+    public void StartDialog(string text)
     {
         _panel.SetActive(true);
-        _actor = actor;
         _dialogText.text = text;
 
-        _actor.GetComponent<MainCharacter>().Disable();
+        MainCharacterController.Instance.Disable();
     }
 
     public void ContinueDialog()
@@ -44,6 +42,6 @@ public class UIDialogController : MonoSingleton<UIDialogController>
     public void EndDialog()
     {
         _panel.SetActive(false);
-        _actor.GetComponent<MainCharacter>().Enable();
+        MainCharacterController.Instance.Enable();
     }
 }
