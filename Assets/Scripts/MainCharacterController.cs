@@ -85,7 +85,7 @@ public class MainCharacterController : MonoSingleton<MainCharacterController>
             bool interactionSuccessful = MakeInteraction();
             if (!interactionSuccessful)
             {
-                UIMainMenu.Instance.Spawn();
+                ((UIMainMenu)UIMainMenu.Instance).Spawn();
             }
         }
     }
